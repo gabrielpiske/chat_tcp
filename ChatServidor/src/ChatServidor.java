@@ -1,3 +1,4 @@
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -7,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ChatServidor {
+
     private static final int PORT = 12345;
     private static ServerSocket serverSocket;
     private static Map<String, PrintWriter> clients = new HashMap<>();
@@ -29,18 +31,19 @@ public class ChatServidor {
 
     // Classe que gerencia a comunicação com o cliente
     private static class ClientHandler implements Runnable {
+
         private Socket socket;
         private BufferedReader in;
         private PrintWriter out;
         private String clienteName;
 
-        public ClientHandler(Socket socket){
+        public ClientHandler(Socket socket) {
             this.socket = socket;
             try {
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 out = new PrintWriter(socket.getOutputStream(), true);
             } catch (Exception e) {
-                e.printStackTrace(); 
+                e.printStackTrace();
             }
         }
 
@@ -48,15 +51,18 @@ public class ChatServidor {
             try {
                 out.println("Digite seu nome:");
                 clienteName = in.readLine();
+
                 synchronized (clients) {
                     clients.put(clienteName, out);
                 }
                 System.out.println(clienteName + " entrou no Chat.");
 
+                // Atualiza lista de usuários
+                broadcastUserList();
+
                 String message;
                 while ((message = in.readLine()) != null) {
                     if (message.startsWith("/send")) {
-                        // enviar mensagem a outro cliente
                         String[] parts = message.split(" ", 3);
                         if (parts.length == 3) {
                             String target = parts[1];
@@ -67,6 +73,13 @@ public class ChatServidor {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
+            } finally {
+                if (clienteName != null) {
+                    synchronized (clients) {
+                        clients.remove(clienteName);
+                    }
+                    broadcastUserList(); // Atualiza a lista quando o usuário sai
+                }
             }
         }
 
@@ -76,6 +89,20 @@ public class ChatServidor {
                 targetOut.println(clienteName + " diz: " + message);
             } else {
                 out.println("Usuário " + target + " não encontrado");
+            }
+        }
+
+        private void broadcastUserList() {
+            synchronized (clients) {
+                StringBuilder userList = new StringBuilder("/users ");
+                for (String user : clients.keySet()) {
+                    userList.append(user).append(" ");
+                }
+                String userListMessage = userList.toString();
+
+                for (PrintWriter writer : clients.values()) {
+                    writer.println(userListMessage);
+                }
             }
         }
     }
