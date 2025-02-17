@@ -26,6 +26,7 @@ public class ChatCliente extends JFrame {
         setSize(500, 350);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
+        setLocationRelativeTo(null);
 
         // Área de Chat
         taChat = new JTextArea();
