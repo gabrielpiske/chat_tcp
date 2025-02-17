@@ -32,13 +32,11 @@ public class ChatServidor {
     // Classe que gerencia a comunicação com o cliente
     private static class ClientHandler implements Runnable {
 
-        private Socket socket;
         private BufferedReader in;
         private PrintWriter out;
         private String clienteName;
 
         public ClientHandler(Socket socket) {
-            this.socket = socket;
             try {
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 out = new PrintWriter(socket.getOutputStream(), true);
@@ -77,6 +75,7 @@ public class ChatServidor {
                 if (clienteName != null) {
                     synchronized (clients) {
                         clients.remove(clienteName);
+                        System.out.println("Usuário: " + clienteName + " saiu do servidor");
                     }
                     broadcastUserList(); // Atualiza a lista quando o usuário sai
                 }
