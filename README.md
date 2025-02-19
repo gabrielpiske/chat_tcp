@@ -12,7 +12,7 @@ Este projeto implementa um sistema de chat cliente-servidor em Java, permitindo 
 
 - Interface gráfica para o cliente utilizando Swing.
 
-🚀 Tecnologias Utilizadas
+### 🚀 Tecnologias Utilizadas
 
 - Java (JDK 8+)
 
